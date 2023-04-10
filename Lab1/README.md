@@ -153,7 +153,7 @@ You can test your program using the script (Lab1.sh) that comes with this Lab.
 ```shell
 		sudo  ./Lab1.sh  test_group answer_group
 ```
-
+b
 Parameter explanation：
 
 ​		The script takes two parameters	
