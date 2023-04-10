@@ -1,10 +1,12 @@
 CXXFLAGS+=-O2 -ggdb -DDEBUG
 CXXFLAGS+=-Wall -Wextra
 
-all: sudoku_solve
+all: sudoku
+.PHONY: clean
 
-sudoku_solve: main.cc sudoku_basic.cc  sudoku_dancing_links.cc neighbor.cc
-	g++ -O0 -pthread -o $@ $^
+sudoku: main.cc neighbor.cc sudoku_basic.cc  sudoku_dancing_links.cc sudoku.h ThreadPool.h
+	g++ -O2 -pthread -o sudoku_solve main.cc neighbor.cc sudoku_basic.cc  sudoku_dancing_links.cc
+
 
 clean:
-	rm sudoku_solve
+	rm demo sudoku

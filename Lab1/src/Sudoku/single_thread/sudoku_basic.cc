@@ -1,71 +1,88 @@
 #include <assert.h>
 #include <stdio.h>
-
 #include <algorithm>
-
+#include <pthread.h>
+#include <thread>
+#include <string.h>
+#include <map>
+#include <iostream>
 #include "sudoku.h"
+using namespace std;
 
-int board[N];
-int spaces[N];
-int nspaces;
+pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t output_mutex = PTHREAD_MUTEX_INITIALIZER;
+__thread int board[N]; // 使用__thread变量使每个线程有一份独立的board实体
+// std::queue<std::vector<int>> puzzleSet;
+std::map<int, std::vector<int>> puzzleSet;
+map<int, std::vector<int>>::iterator it;
 int (*chess)[COL] = (int (*)[COL])board;
 
-static void find_spaces()
+void solveSudoku()
 {
-  nspaces = 0;
-  for (int cell = 0; cell < N; ++cell) {
-    if (board[cell] == 0)
-      spaces[nspaces++] = cell;
+  bool (*solve)(int) = solve_sudoku_dancing_links;
+  pthread_mutex_lock(&queue_mutex);
+  if (it != puzzleSet.end())
+  {
+    std::vector<int> tmp = it->second;
+    std::copy(tmp.begin(), tmp.end(), board);
+
+    // puzzleSet.pop();
   }
+  else
+  {
+    return;
+  }
+  pthread_mutex_unlock(&queue_mutex);
+  if (solve(0))
+  {
+    std::vector<int> tmp(board, board + 81);
+    puzzleSet[it->first] = tmp;
+    it++;
+    // 打印结果
+    for (int i = 0; i < N; ++i)
+    {
+      printf("%d", board[i]);
+    }
+    printf("\n");
+    fflush(stdout);
+    // output();
+    //  if (!solved())
+    //  assert(0);
+  }
+  else
+  {
+    printf("No: ");
+  }
+  return;
 }
 
-void input(const char in[N])
+// void output()
+// {
+//   pthread_mutex_lock(&output_mutex);
+//   it = puzzleSet.begin();
+//   while (it != puzzleSet.end())
+//   {
+//     // cout << it->first << endl;
+//     vector<int> tmp = it->second;
+//     for (int i = 0; i < 81; i++)
+//       cout << tmp[i];
+//     cout << endl;
+//     it++;
+//   }
+//   pthread_mutex_unlock(&output_mutex);
+// }
+
+void input(const char in[N], int num)
 {
-  for (int cell = 0; cell < N; ++cell) {
-    board[cell] = in[cell] - '0';
-    assert(0 <= board[cell] && board[cell] <= NUM);
+  std::vector<int> tmp;
+  for (int cell = 0; cell < N; ++cell)
+  {
+    tmp.push_back(in[cell] - '0');
+    assert(0 <= tmp[cell] && tmp[cell] <= NUM);
   }
-  find_spaces();
-}
-
-bool available(int guess, int cell)
-{
-  for (int i = 0; i < NEIGHBOR; ++i) {
-    int neighbor = neighbors[cell][i];
-    if (board[neighbor] == guess) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool solve_sudoku_basic(int which_space)
-{
-  if (which_space >= nspaces) {
-    return true;
-  }
-
-  // find_min_arity(which_space);
-  int cell = spaces[which_space];
-
-  for (int guess = 1; guess <= NUM; ++guess) {
-    if (available(guess, cell)) {
-      // hold
-      assert(board[cell] == 0);
-      board[cell] = guess;
-
-      // try
-      if (solve_sudoku_basic(which_space+1)) {
-        return true;
-      }
-
-      // unhold
-      assert(board[cell] == guess);
-      board[cell] = 0;
-    }
-  }
-  for (int i = 0; i < N; i++) {
-            printf("%d",board[i]);
-    }
-  return false;
+  pthread_mutex_lock(&queue_mutex);
+  puzzleSet.insert(pair<int, vector<int>>(num, tmp));
+  pthread_mutex_unlock(&queue_mutex);
+  return;
+  // std::cout<<puzzleSet.size()<<std::endl;
 }
