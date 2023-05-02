@@ -1,5 +1,5 @@
-#ifndef HTTP_CON_H
-#define HTTP_CON_H
+#ifndef HTTP_H
+#define HTTP_H
 
 #include <bits/stdc++.h>
 #include <stdio.h>
@@ -25,15 +25,15 @@ void decode_str(char *to, char *from);
 const char *get_file_type(char *name);
 int get_line(int sock, char *buf, int size);
 
-class HttpCon {
+class Http {
 public:
     static int m_epollfd;
     static int m_user_cnt;
 
-    HttpCon() {
+    Http() {
         m_socketfd = -1;
     }
-    ~HttpCon() {}
+    ~Http() {}
 
     void process();
     //非阻塞的读写

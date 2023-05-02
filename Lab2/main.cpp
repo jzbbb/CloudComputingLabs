@@ -17,8 +17,7 @@
 #include <stdbool.h>
 #include <regex.h>
 #include "threadpool.h"  // 自定义线程池头文件
-#include "httpcon.h"     // 自定义HTTP连接类头文件
-//#include "tools.h"       // 工具函数库头文件
+#include "http.h"     // 自定义HTTP连接类头文件
 
 using namespace std;
 
@@ -45,7 +44,7 @@ bool get_IP_legal(regex_t *ipreg, const char *ip){
 	}
 }
 // ip转换成int 进行非法判断
-unsigned int ip_int(char *ip)
+unsigned int Is_ip_legal(char *ip)
 {   
     //编译正则
     regex_t ipreg1;
@@ -108,7 +107,7 @@ int main(int argc, char *argv[])
         switch (index) // 转换参数形式
         {
         case 0:
-            ip = ip_int(optarg);     // 将ip地址转换为整数形式
+            ip = Is_ip_legal(optarg);     // 将ip地址转换为整数形式
             if (ip == __INT32_MAX__) // 非法地址退出
             {
                 exit(1);
@@ -133,10 +132,10 @@ int main(int argc, char *argv[])
     set_signal(SIGPIPE, SIG_IGN);
 
     // 初始化线程池
-    ThreadPool<HttpCon> *pool = NULL;
+    ThreadPool<Http> *pool = NULL;
     try
     {
-        pool = new ThreadPool<HttpCon>(threads, 512);
+        pool = new ThreadPool<Http>(threads, 512);
         cout << "Thread pool created successfully" << endl;
     }
     catch (...)
@@ -146,7 +145,7 @@ int main(int argc, char *argv[])
     }
 
     // 存储连接到服务器的客户端请求
-    HttpCon *Requests = new HttpCon[MAX_REQUESTS];
+    Http *Requests = new Http[MAX_REQUESTS];
 
     // 创建套接字
     int http_server = socket(PF_INET, SOCK_STREAM, 0);
@@ -173,7 +172,7 @@ int main(int argc, char *argv[])
 
     // 添加监听文件
     add_event(file_epoll, http_server, false);
-    HttpCon::m_epollfd = file_epoll;
+    Http::m_epollfd = file_epoll;
 
     // 事件监听循环
     while (true)
@@ -200,7 +199,7 @@ int main(int argc, char *argv[])
                 // 接收连接请求
                 int fd_client = accept(http_server, (struct sockaddr *)&addr_client, &len_addr);
 
-                if (HttpCon::m_user_cnt >= MAX_REQUESTS)
+                if (Http::m_user_cnt >= MAX_REQUESTS)
                 {
                     close(fd_client);
                     continue;

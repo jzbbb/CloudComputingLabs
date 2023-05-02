@@ -1,4 +1,4 @@
-src = main.cpp locker.cpp httpcon.cpp
+src = main.cpp locker.cpp http.cpp
 
 target:http-server
 

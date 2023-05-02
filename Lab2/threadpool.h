@@ -45,8 +45,9 @@ m_stop(false), m_threads(NULL) {
     }
 
     for(int i = 0; i < num1; i++) {
-        std::cout<<"creating thread ："<<i<<std::endl;
+        std::cout<<"Creating thread ："<<i<<std::endl;
         if(pthread_create(&m_threads[i], NULL, worker, this) != 0) {
+            perror("pthread_create failed");
             delete [] m_threads;
             throw std::exception();
         }

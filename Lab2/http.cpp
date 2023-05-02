@@ -1,4 +1,4 @@
-#include "httpcon.h"
+#include "http.h"
 
 // 利用sigaction设置信号和函数处理
 void set_signal(int sig, void (*handler)(int))
@@ -44,10 +44,10 @@ void mod_event(int fd_epoll, int fd_socket, int ev)
     epoll_ctl(fd_epoll, EPOLL_CTL_MOD, fd_socket, &event);
 }
 
-int HttpCon::m_epollfd = -1;
-int HttpCon::m_user_cnt = 0;
+int Http::m_epollfd = -1;
+int Http::m_user_cnt = 0;
 
-void HttpCon::init(int sockfd, const sockaddr_in &addr)
+void Http::init(int sockfd, const sockaddr_in &addr)
 {
     m_socketfd = sockfd;
     m_addr = addr;
@@ -59,7 +59,7 @@ void HttpCon::init(int sockfd, const sockaddr_in &addr)
     m_user_cnt++;
 }
 
-void HttpCon::close()
+void Http::close()
 {
     if (m_socketfd != -1)
     {
@@ -70,19 +70,19 @@ void HttpCon::close()
     }
 }
 
-bool HttpCon::read()
+bool Http::read()
 {
     printf("非阻塞一次性读出所有数据\n");
     return true;
 }
 
-bool HttpCon::write()
+bool Http::write()
 {
     printf("非阻塞写入数据\n");
     return true;
 }
 
-void HttpCon::process()
+void Http::process()
 {
     // 工作主要内容
     // 读取HTTP报文
@@ -130,7 +130,7 @@ void HttpCon::process()
         http_request(line, m_socketfd, len);
         delete_event(m_epollfd, m_socketfd);
     }
-    printf("工作执行中......\n");
+    printf("Working......\n");
 }
 int hexit(char c)
 {
