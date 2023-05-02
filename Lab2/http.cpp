@@ -113,8 +113,10 @@ void Http::process()
     if (strncasecmp("GET", line, 3) == 0)
     {
         // 处理Get请求
+        printf("Handle Get requests\n");
         http_request(line, m_socketfd, len);
         delete_event(m_epollfd, m_socketfd);
+        
         // 这里是修改还是关闭待讨论
         // mod_event(m_epollfd,m_socketfd,0);
     }
@@ -122,15 +124,16 @@ void Http::process()
     { // 这里还要固定文件名 正则表达式拿下来
         // 实体行里面没有换行符号 读一次就行
         // 这里不用设置长度了 使用了定时器的话
+        printf("Handle POST requests\n");
         http_request(line, m_socketfd, len);
         delete_event(m_epollfd, m_socketfd);
+        
     }
     else
     {
         http_request(line, m_socketfd, len);
         delete_event(m_epollfd, m_socketfd);
     }
-    printf("Working......\n");
 }
 int hexit(char c)
 {

@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     if (argc != 7) // 命令行参数不为7则打印提示信息
     {
         cout << "please check your input, example:" << endl;
-        cout << "./httpserver --ip 127.0.0.1 --port 8888 --threads 8" << endl;
+        cout << "./http-server --ip 127.0.0.1 --port 8888 --threads 8" << endl;
         exit(1);
     }
     while (1) // 解析命令行参数
@@ -207,20 +207,6 @@ int main(int argc, char *argv[])
                 Requests[fd_client].init(fd_client, addr_client);
                 pool->append(Requests + fd_client);
             }
-            //  else if(events[i].events & EPOLLIN) {
-            //     if(Requests[fd_event].read()) {
-
-            //     } else {
-            //         Requests[fd_event].close();
-            //     }
-
-            // } else if(events[i].events & EPOLLOUT) {
-            //     //这里的信号是什么时候才会被接收到呢？？？
-            //     if(!Requests[fd_event].write()) {
-            //         Requests[fd_event].close();
-            //     }
-
-            // }
         }
     }
 
