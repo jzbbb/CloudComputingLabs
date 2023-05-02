@@ -67,7 +67,7 @@ What you need to do:
 **basic version**:
 
 * A search service: use a specific url to get some data from the server that does not come from a file stored on the file system.
-  * The url don't have query string, e.g. `http://localhost:8080/api/check`;
+  * The url don't have query string, e.g. `http://localhost:8080/check`;
   * Send response with plain text content.
 
 * Static files access: use a specific url to access a text file stored on the file system.
@@ -272,13 +272,10 @@ For **advanced** version:
 user@linux:~/http-server$ curl -i -X GET http://localhost:8080/data.json
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 93
+Content-Length: 101
 
-[{"id":1,"name":"Foo"},{"id":2,"name":"Bar"},{"id":3,"name":"Foo Bar"},{"id":4,"name":"Foo"}]
+[{"id":"1","name":"Foo"},{"id":"2","name":"Bar"},{"id":"3","name":"Foo Bar"},{"id":"4","name":"Foo"}]
 ```
-
-> For standardized testing, output JSON data in one line without unnecessary spaces.
-
 **2) access web services for getting data**
 
 For **basic** version:
@@ -308,8 +305,6 @@ For **advanced** version:
 | /api/search?[id=`value1`&name=`value2`] | if no object matches, return all objects <br /> in `/data/not_found.json` | 404 |application/json |
 | any other error paths | /{static files}/404.html | 404 | text/html |
 
-> The query string format is a regular expression: `id=[0-9]+&name=[a-zA-Z0-9]+`.
-
 > If you do not want to parse json file, you could store the data in memory instead of reading file every time.
 
 E.g.:
@@ -319,30 +314,22 @@ user@linux:~/http-server$ curl -i -G -d 'id=1&name=Foo' \
 > -X GET http://localhost:8080/api/search
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 23
+Content-Length: 25
 
-[{"id":1,"name":"Foo"}] 
+[{"id":"1","name":"Foo"}] 
 ```
-
-> For standardized testing, output JSON data in one line without unnecessary spaces.
 
 #### 3.7.2 Using POST method
 
 **access web services for uploading data**
 
-All data you need to upload are two key/value pairs: `id: {value1}` & `name: {value2}`.
+all data you need to upload are two key/value pairs: `id: {value1}` & `name: {value2}`.
 
-> For standardized testing, output in the order of `id`, `name`.
-
-Your server should check the data. In default case, the server should echo the data from the client. 
-
-If the data format is error, e.g., `id=1&name`, `id=1` or `id=1&foo=a`, send content error message.
+Your server should check the data. In default case, the server should echo the data from the client. If the data format is error, send content error messge. 
 
 For **basic** version:
 
 The client should send requests with `Content-Type: application/x-www-form-urlencoded`.
-
-> The echo data format is a regular expression: `id=[0-9]+&name=[a-zA-Z0-9]+`.
 
 After handling, send response:
 
@@ -382,17 +369,15 @@ After handling, send response:
 E.g.:
 
 ```shell
-user@linux:~/http-server$ curl -i -d '{"id":1,"name":"Foo"}' \
+user@linux:~/http-server$ curl -i -d '{"id":"1","name":"Foo"}' \
 > -H 'Content-Type: application/json' \
 > -X POST http://localhost:8080/api/upload
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 21
+Content-Length: 23
 
-{"id":1,"name":"Foo"}
+{"id":"1","name":"Foo"}
 ```
-
-> For standardized testing, output JSON data in one line without unnecessary spaces.
 
 #### 3.7.3 Other method
 
@@ -436,7 +421,7 @@ Of course you can also use your own browser and other web tools like curl.
 
 Please put all your code in folder `Lab2` and write a `Makefile` so that we **can compile your code in one single command** `make`. The compiled runnable executable binary should be named `http-server` and located in folder `Lab2`. Please carefully following above rules so that TAs can automatically test your code!!!
 
-Please submit your lab program following the guidance in the [Overall Lab Instructions](../README.md) (`../README.md`)
+Please submit your lab program and performance test report following the guidance in the [Overall Lab Instructions](../README.md) (`../README.md`)
 
 # 6. Grading standards
 
