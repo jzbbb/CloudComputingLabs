@@ -2,7 +2,7 @@
 #define THREAEDPOOL_H
 
 #include <bits/stdc++.h>
-#include "locker.h"
+#include <semaphore.h>
 
 // class threadpool
 template<class T>
@@ -23,11 +23,11 @@ private:
     bool m_stop;
     int m_thread_number;  //nums of threads
     pthread_t *m_threads; //arry of threadpool
-    Sem m_poolSem;
+    sem_t m_poolSem;
 
     std::list<T*> m_workqueue;   //list of workqueue
     int max_requests;
-    Locker m_queueLocker;
+    pthread_mutex_t m_queueLocker;
 
 };
 
@@ -68,15 +68,15 @@ ThreadPool<T>::~ThreadPool() {
 
 template<class T>
 bool ThreadPool<T>::append(T *request) {
-    m_queueLocker.lock();
+    pthread_mutex_lock(&m_queueLocker);
     if( m_workqueue.size() > max_requests ) {
-        m_queueLocker.unlock();
+        pthread_mutex_unlock(&m_queueLocker);
         return false;
     }
 
     m_workqueue.push_back(request);
-    m_queueLocker.unlock();
-    m_poolSem.post();
+    pthread_mutex_unlock(&m_queueLocker);
+    sem_post(&m_poolSem);
     return true;
 }
 
@@ -90,13 +90,13 @@ void* ThreadPool<T>::worker(void *arg) {
 template<class T>
 void ThreadPool<T>::run() {
     while(!m_stop) {
-        m_poolSem.wait();
-        m_queueLocker.lock();
+        sem_wait(&m_poolSem);
+        pthread_mutex_lock(&m_queueLocker);
 
         T *request = m_workqueue.front();
         m_workqueue.pop_front();
         
-        m_queueLocker.unlock();
+        pthread_mutex_unlock(&m_queueLocker);
 
         request->process();
     }
